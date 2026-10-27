@@ -1,0 +1,7 @@
+{
+  "name": "open-webui-vercel-proxy",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p public"
+  }
+}

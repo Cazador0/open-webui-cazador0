@@ -1,0 +1,43 @@
+# Render Blueprint for Open WebUI + Ollama Cloud.
+# Deploy: https://render.com/deploy?repo=https://github.com/cazador0/open-webui-cazador0
+services:
+  - type: web
+    name: open-webui-cazador0
+    runtime: docker
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: ./deploy/render
+    # 2 GB RAM; Open WebUI plus its local embedding model does not fit in 512 MB (starter).
+    plan: standard
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: open-webui-data
+      mountPath: /app/backend/data
+      sizeGB: 5
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: WEBUI_SECRET_KEY
+        generateValue: true
+      # Ollama Cloud
+      - key: OLLAMA_BASE_URL
+        value: https://ollama.com
+      - key: OLLAMA_API_KEY
+        sync: false
+      # Admin is created on first boot, so nobody can race you to the signup page.
+      - key: WEBUI_ADMIN_EMAIL
+        sync: false
+      - key: WEBUI_ADMIN_PASSWORD
+        sync: false
+      - key: ENABLE_SIGNUP
+        value: "false"
+      - key: ENABLE_PASSWORD_VALIDATION
+        value: "true"
+      - key: JWT_EXPIRES_IN
+        value: 4h
+      # Vercel rewrites cannot proxy WebSockets; Socket.IO falls back to HTTP long-polling.
+      - key: ENABLE_WEBSOCKET_SUPPORT
+        value: "false"
+      # Public URL users open (your Vercel domain), e.g. https://open-webui-cazador0.vercel.app
+      - key: WEBUI_URL
+        sync: false
